@@ -91,7 +91,7 @@ __currentlevel__ = DEBUG
 DEFAULT_SOURCE = "SYSTEM"
 
 # Set of current logging sources
-_sources = {DEFAULT_SOURCE}
+_sources = SOURCES = {DEFAULT_SOURCE}
 
 # Colors for terminal output
 Colors = {
@@ -327,26 +327,26 @@ def config(**kwargs):
     if 'level' in kwargs:
         __currentlevel__ = kwargs['level']
 
-    global _sources
+    global SOURCES
     global DEFAULT_SOURCE
     if 'sources' in kwargs:
         if kwargs['sources'] == 'all':
             kwargs['sources'] = 'all'
         elif kwargs['sources'] == 'defined':
-            kwargs['sources'] = _sources
+            kwargs['sources'] = SOURCES
         else:
             new_sources = set(kwargs['sources'])
 
             for source in new_sources:
-                if source not in _sources:
+                if source not in SOURCES:
                     add_source(source)
 
-            for source in _sources.copy():
+            for source in SOURCES.copy():
                 if source not in new_sources:
                     remove_source(source)
 
-            _sources = new_sources
-            kwargs['sources'] = _sources
+            SOURCES = new_sources
+            kwargs['sources'] = SOURCES
     Logger.config(**kwargs)
 
 def critical(message: str, source: str=None) -> None:
@@ -412,8 +412,8 @@ def add_source(source: str, color: str = "DIMMED"):
     """
     from random import choice
 
-    global _sources
-    _sources.add(source)
+    global SOURCES
+    SOURCES.add(source)
     color = color.upper()
     if color not in Colors:
         taken_colors = {color for _, color in ColorizedSource.values()}
@@ -431,19 +431,19 @@ def remove_source(source: str):
     Args:
         source (str): The source to remove.
     """
-    global _sources
-    if source in _sources:
-        _sources.remove(source)
+    global SOURCES
+    if source in SOURCES:
+        SOURCES.remove(source)
 
     if source in ColorizedSource:
         del ColorizedSource[source]
     
-    if not _sources:
+    if not SOURCES:
         set_default_source("SYSTEM", "CYAN")
     else:
         if source == DEFAULT_SOURCE:
             from random import choice
-            set_default_source(choice(list(_sources)), "CYAN")
+            set_default_source(choice(list(SOURCES)), "CYAN")
 
 def set_default_source(source: str, color:str="DIMMED"):
     """Set the default source for logging.
@@ -452,9 +452,9 @@ def set_default_source(source: str, color:str="DIMMED"):
         source (str): The new default source.
         color (str): The color to use for this source in terminal output.
     """
-    global DEFAULT_SOURCE
+    global DEFAULT_SOURCE, SOURCES
     source = source.upper()
-    if source not in _sources:
+    if source not in SOURCES:
         add_source(source, color)
     DEFAULT_SOURCE = source
 
@@ -466,9 +466,9 @@ def enable() -> None:
     """Enable logging with the current level."""
     Logger.config(level=__currentlevel__)
 
-__all__ = ['critical', 'error', 'warning', 'info', 'debug', 'config',
-           'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 
-           DEFAULT_SOURCE]
+__all__ = ['critical', 'error', 'warning', 'info', 'debug', 'log', 'config', 'enable', 'disable',
+           'set_default_source', 'add_source', 'remove_source', 
+           'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'DEFAULT_SOURCE', 'SOURCES']
 
 _initialized = False
 

@@ -16,7 +16,6 @@
 
 You can install MasterLog directly from PyPI:
 ```bash
-pip install --upgrade
 pip install masterlog
 ```
 
